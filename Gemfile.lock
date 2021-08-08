@@ -1,0 +1,13 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    ruby2d (0.10.0)
+
+PLATFORMS
+  x86_64-linux
+
+DEPENDENCIES
+  ruby2d (~> 0.10.0)
+
+BUNDLED WITH
+   2.2.24
