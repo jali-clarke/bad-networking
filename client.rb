@@ -72,8 +72,8 @@ threads.push(Thread.new do
   end
 end)
 
+update_stamper = Timestamper.new "last update"
 update do
-  puts get(:fps)
   sema.synchronize do
     state.each do |_color, square|
       Square.draw(color: [[1.0, 0.0, 0.0, 1.0],
@@ -87,6 +87,7 @@ update do
   end
   # update location of square
   location = "#{get :mouse_x}-#{get :mouse_y}"
+  update_stamper.update
 end
 
 show
