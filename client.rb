@@ -6,7 +6,7 @@ s.bind(nil, ARGV[0])
 s.send("0 #{ARGV[0]}", 0, 'localhost', 4000)
 # ignore first message from server
 s.recvfrom(16)
-#sema = Mutex.new
+sema = Mutex.new
 
 # Stores the current location of player
 location = "#{ARGV[0]} 0-0"
@@ -46,26 +46,26 @@ end
 threads.push(Thread.new do
   loop do
     text, _sender = s.recvfrom(16)
-    #sema.synchronize do
-    ary = text.split('-')
-    state[ary[0]] = [ary[1], ary[2]]
-    #end
+    sema.synchronize do
+      ary = text.split('-')
+      state[ary[0]] = [ary[1], ary[2]]
+    end
   end
 end)
 
 update do
   puts get(:fps)
-  #sema.synchronize do
-  state.each do |_color, square|
-    Square.draw(color: [[1.0, 0.0, 0.0, 1.0],
-                        [1.0, 0.0, 0.0, 1.0],
-                        [1.0, 0.0, 0.0, 1.0],
-                        [1.0, 0.0, 0.0, 1.0]],
-                x: square[0].to_i,
-                y: square[1].to_i,
-                size: 25)
+  sema.synchronize do
+    state.each do |_color, square|
+      Square.draw(color: [[1.0, 0.0, 0.0, 1.0],
+                          [1.0, 0.0, 0.0, 1.0],
+                          [1.0, 0.0, 0.0, 1.0],
+                          [1.0, 0.0, 0.0, 1.0]],
+                  x: square[0].to_i,
+                  y: square[1].to_i,
+                  size: 25)
+    end
   end
-  #end
   # update location of square
   location = "#{get :mouse_x}-#{get :mouse_y}"
 end
