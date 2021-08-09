@@ -15,9 +15,8 @@ class Timestamper
   end
 end
 
-s = UDPSocket.new
-s.bind(nil, ARGV[0])
-s.send("0 #{ARGV[0]}", 0, 'localhost', 4000)
+s = TCPSocket.new('localhost', 4000)
+s.send("0 #{ARGV[0]}", 0)
 # ignore first message from server
 s.recvfrom(16)
 sema = Mutex.new
@@ -44,7 +43,7 @@ end
 threads.push(Thread.new do
   send_stamper = Timestamper.new "last sent"
   once_per_frame do
-    s.send("1 #{ARGV[0]} #{location}", 0, 'localhost', 4000)
+    s.send("1 #{ARGV[0]} #{location}", 0)
     send_stamper.update
   end
 end)
@@ -56,6 +55,8 @@ at_exit do
     puts 'killing'
     Thread.kill t
   end
+  puts 'closing socket'
+  s.close
 end
 
 #reciever
