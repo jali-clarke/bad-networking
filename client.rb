@@ -17,7 +17,7 @@ end
 
 s = UDPSocket.new
 s.bind(nil, ARGV[0])
-s.send("0 #{ARGV[0]}", 0, 'localhost', 4000)
+s.send("0 #{ARGV[0]}", 0, '127.0.0.1', 4000)
 # ignore first message from server
 s.recvfrom(16)
 sema = Mutex.new
@@ -43,8 +43,8 @@ end
 # tell server where you are, once per frame
 threads.push(Thread.new do
   send_stamper = Timestamper.new "last sent"
-  once_per_frame do
-    s.send("1 #{ARGV[0]} #{location}", 0, 'localhost', 4000)
+  loop do
+    s.send("1 #{ARGV[0]} #{location}", 0, '127.0.0.1', 4000)
     send_stamper.update
   end
 end)
