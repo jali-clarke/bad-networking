@@ -1,6 +1,20 @@
 require 'socket'
 require 'ruby2d'
 
+class Timestamper
+  def initialize(name)
+    @name = name
+    @last_updated = Time.now
+  end
+
+  def update
+    pinged = Time.now
+    diff = pinged - @last_updated
+    @last_updated = pinged
+    puts "#{@name} #{diff}"
+  end
+end
+
 s = UDPSocket.new
 s.bind(nil, ARGV[0])
 s.send("0 #{ARGV[0]}", 0, 'localhost', 4000)
@@ -28,8 +42,10 @@ end
 
 # tell server where you are, once per frame
 threads.push(Thread.new do
+  send_stamper = Timestamper.new "last sent"
   once_per_frame do
     s.send("1 #{ARGV[0]} #{location}", 0, 'localhost', 4000)
+    send_stamper.update
   end
 end)
 
@@ -44,8 +60,11 @@ end
 
 #reciever
 threads.push(Thread.new do
+  receive_stamper = Timestamper.new "last received"
   loop do
     text, _sender = s.recvfrom(16)
+    receive_stamper.update
+
     sema.synchronize do
       ary = text.split('-')
       state[ary[0]] = [ary[1], ary[2]]
